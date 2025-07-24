@@ -61,7 +61,23 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Redux Flow Colors
+				action: 'hsl(var(--action-color))',
+				reducer: 'hsl(var(--reducer-color))',
+				store: 'hsl(var(--store-color))',
+				selector: 'hsl(var(--selector-color))',
+				render: 'hsl(var(--render-color))'
+			},
+			backgroundImage: {
+				'redux-flow': 'var(--redux-flow-gradient)'
+			},
+			boxShadow: {
+				'action-glow': 'var(--action-glow)',
+				'reducer-glow': 'var(--reducer-glow)',
+				'store-glow': 'var(--store-glow)',
+				'selector-glow': 'var(--selector-glow)',
+				'render-glow': 'var(--render-glow)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +100,72 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				// Redux Flow Animations
+				'redux-flow': {
+					'0%': { 
+						transform: 'translateX(-100%)', 
+						opacity: '0' 
+					},
+					'20%': { 
+						transform: 'translateX(-80%)', 
+						opacity: '0.8' 
+					},
+					'50%': { 
+						transform: 'translateX(0%)', 
+						opacity: '1' 
+					},
+					'70%': { 
+						transform: 'translateX(20%)', 
+						opacity: '0.8' 
+					},
+					'100%': { 
+						transform: 'translateX(100%)', 
+						opacity: '0' 
+					}
+				},
+				'flow-pulse': {
+					'0%, 100%': { 
+						opacity: '0.4',
+						transform: 'scale(1)' 
+					},
+					'50%': { 
+						opacity: '1',
+						transform: 'scale(1.1)' 
+					}
+				},
+				'glow-pulse': {
+					'0%, 100%': { 
+						boxShadow: 'var(--action-glow)' 
+					},
+					'25%': { 
+						boxShadow: 'var(--reducer-glow)' 
+					},
+					'50%': { 
+						boxShadow: 'var(--store-glow)' 
+					},
+					'75%': { 
+						boxShadow: 'var(--selector-glow)' 
+					}
+				},
+				'slide-in-right': {
+					'0%': { 
+						transform: 'translateX(100%)',
+						opacity: '0' 
+					},
+					'100%': { 
+						transform: 'translateX(0)',
+						opacity: '1' 
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'redux-flow': 'redux-flow 2s ease-in-out',
+				'flow-pulse': 'flow-pulse 1.5s ease-in-out infinite',
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+				'slide-in-right': 'slide-in-right 0.3s ease-out'
 			}
 		}
 	},
