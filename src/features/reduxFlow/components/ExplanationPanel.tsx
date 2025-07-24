@@ -6,14 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { selectCurrentEvent, selectLatestEvents, selectExplanations } from '../store/reduxFlow.selectors';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '@/hooks/redux.hooks';
 import { clearEvents } from '../store/reduxFlow.slice';
 
 export const ExplanationPanel: React.FC = () => {
   const currentEvent = useSelector(selectCurrentEvent);
   const latestEvents = useSelector(selectLatestEvents);
   const explanations = useSelector(selectExplanations);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handleClearEvents = () => {
     dispatch(clearEvents());
@@ -75,8 +75,17 @@ export const ExplanationPanel: React.FC = () => {
               className="flex items-center justify-between p-2 bg-muted/50 rounded text-xs"
             >
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full bg-${event.type === 'action' ? 'action' : event.type === 'store' ? 'store' : 'primary'}`} />
+                <div className={`w-2 h-2 rounded-full ${
+                  event.type === 'action' ? 'bg-action' : 
+                  event.type === 'reducer' ? 'bg-reducer' :
+                  event.type === 'store' ? 'bg-store' : 
+                  event.type === 'selector' ? 'bg-selector' :
+                  event.type === 'render' ? 'bg-render' : 'bg-primary'
+                }`} />
                 <span className="font-medium">{event.actionType}</span>
+                <Badge variant="outline" className="text-xs">
+                  {event.type}
+                </Badge>
               </div>
               <span className="text-muted-foreground">
                 {new Date(event.timestamp).toLocaleTimeString()}

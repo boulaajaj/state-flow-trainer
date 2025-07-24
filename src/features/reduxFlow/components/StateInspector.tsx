@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Eye, EyeOff } from 'lucide-react';
-import { RootState } from '@/store';
+import { selectRootState, selectStateSlices } from '../store/reduxFlow.selectors';
 
 export const StateInspector: React.FC = () => {
-  const state = useSelector((state: RootState) => state);
-  const [isVisible, setIsVisible] = React.useState(false);
+  const state = useSelector(selectRootState);
+  const stateSlices = useSelector(selectStateSlices);
+  const [isVisible, setIsVisible] = React.useState(true);
 
   const formatState = (obj: any, depth = 0): string => {
     if (depth > 3) return '...';
@@ -25,14 +26,6 @@ export const StateInspector: React.FC = () => {
     return String(obj);
   };
 
-  const getStateSlices = () => {
-    const slices = Object.entries(state).map(([key, value]) => ({
-      name: key,
-      data: value,
-      size: JSON.stringify(value).length
-    }));
-    return slices;
-  };
 
   return (
     <Card className="p-4 bg-card border-border h-80">
@@ -60,7 +53,7 @@ export const StateInspector: React.FC = () => {
           <TabsContent value="overview" className="mt-4">
             <ScrollArea className="h-52">
               <div className="space-y-3">
-                {getStateSlices().map((slice) => (
+                {stateSlices.map((slice) => (
                   <motion.div
                     key={slice.name}
                     initial={{ opacity: 0, y: 10 }}
