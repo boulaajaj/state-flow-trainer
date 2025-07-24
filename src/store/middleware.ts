@@ -18,7 +18,7 @@ export const reduxFlowMiddleware: Middleware = (store) => (next) => (action: Any
 
   const stateBefore = store.getState();
   
-  // Dispatch action flow event
+  // Step 1: Action dispatched
   store.dispatch(reduxFlowSlice.actions.actionDispatched({
     type: 'action',
     actionType: action.type,
@@ -26,19 +26,54 @@ export const reduxFlowMiddleware: Middleware = (store) => (next) => (action: Any
     payload: action.payload,
   }));
 
+  // Step 2: Reducer processing (simulate delay)
+  setTimeout(() => {
+    store.dispatch(reduxFlowSlice.actions.actionDispatched({
+      type: 'reducer',
+      actionType: action.type,
+      timestamp: Date.now(),
+      payload: action.payload,
+    }));
+  }, 300);
+
   const result = next(action);
   
   const stateAfter = store.getState();
   
-  // Dispatch state update flow event
+  // Step 3: Store updated
   if (stateBefore !== stateAfter) {
-    store.dispatch(reduxFlowSlice.actions.stateUpdated({
-      type: 'store',
-      actionType: action.type,
-      timestamp: Date.now(),
-      stateBefore,
-      stateAfter,
-    }));
+    setTimeout(() => {
+      store.dispatch(reduxFlowSlice.actions.stateUpdated({
+        type: 'store',
+        actionType: action.type,
+        timestamp: Date.now(),
+        stateBefore,
+        stateAfter,
+      }));
+      
+      // Step 4: Selectors fired
+      setTimeout(() => {
+        store.dispatch(reduxFlowSlice.actions.actionDispatched({
+          type: 'selector',
+          actionType: action.type,
+          timestamp: Date.now(),
+        }));
+        
+        // Step 5: Components re-rendered
+        setTimeout(() => {
+          store.dispatch(reduxFlowSlice.actions.actionDispatched({
+            type: 'render',
+            actionType: action.type,
+            timestamp: Date.now(),
+          }));
+          
+          // Complete the flow
+          setTimeout(() => {
+            store.dispatch(reduxFlowSlice.actions.flowCompleted());
+          }, 500);
+        }, 200);
+      }, 200);
+    }, 600);
   }
 
   return result;

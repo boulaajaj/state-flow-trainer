@@ -25,7 +25,7 @@ export const ReduxFlowVisualizer: React.FC = () => {
       
       <div className="flex items-center justify-between mb-4">
         {flowSteps.map((step, index) => (
-          <React.Fragment key={step.id}>
+          <div key={step.id} className="flex items-center">
             <motion.div
               className={`
                 relative flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-300
@@ -94,7 +94,7 @@ export const ReduxFlowVisualizer: React.FC = () => {
                 </AnimatePresence>
               </motion.div>
             )}
-          </React.Fragment>
+          </div>
         ))}
       </div>
       
