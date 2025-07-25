@@ -14,16 +14,15 @@ const Index = () => {
   return (
     <AppLayout>
       {/* Sticky Redux Flow Playground */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-        <div className="container mx-auto px-6 py-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <EnhancedFlowVisualizer />
-          </motion.div>
-        </div>
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="py-4"
+        >
+          <EnhancedFlowVisualizer />
+        </motion.div>
       </div>
 
       {/* Scrollable Content */}
