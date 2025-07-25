@@ -281,10 +281,10 @@ export const EnhancedFlowVisualizer: React.FC = () => {
 
   return (
     <div className="w-full bg-card border border-border rounded-lg overflow-hidden">
-      <div className="p-2 sm:p-3 lg:p-4">
-        <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-          <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-foreground">
-            🎯 <span className="hidden sm:inline">Redux Flow</span><span className="sm:hidden">Flow</span>
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base lg:text-lg font-semibold text-foreground">
+            🎯 Redux Flow
           </h3>
           <div className="flex gap-1">
             <Button
@@ -298,13 +298,13 @@ export const EnhancedFlowVisualizer: React.FC = () => {
           </div>
         </div>
 
-        {/* Redux Flow Steps - Full width responsive layout, no vertical overflow */}
-        <div className="w-full overflow-x-auto overflow-y-hidden">
-          <div className="flex items-stretch justify-between min-w-[640px] gap-2 sm:gap-3 md:gap-4 lg:gap-6 h-16 sm:h-20 md:h-24 lg:h-28">
+        {/* Redux Flow Steps - Full width responsive layout, no scrollbar */}
+        <div className="w-full">
+          <div className="flex items-stretch gap-2 lg:gap-4 h-20 lg:h-24">
             {flowSteps.map((step, index) => (
               <React.Fragment key={step.id}>
-                {/* Step Card - equal flex sizing with min-width */}
-                <div className="flex-1 min-w-[100px] sm:min-w-[120px] md:min-w-[140px]">
+                {/* Step Card - equal flex sizing */}
+                <div className="flex-1 min-w-0">
                   <StepCard
                     step={step}
                     index={index}
@@ -316,9 +316,9 @@ export const EnhancedFlowVisualizer: React.FC = () => {
                 
                 {/* Flow Line - between steps */}
                 {index < flowSteps.length - 1 && (
-                  <div className="flex-shrink-0 w-4 sm:w-6 md:w-8 lg:w-12 flex items-center justify-center">
+                  <div className="flex-shrink-0 w-4 lg:w-8 flex items-center justify-center">
                     <motion.div
-                      className="w-full h-0.5 sm:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
+                      className="w-full h-0.5 lg:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
