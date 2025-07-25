@@ -280,14 +280,14 @@ export const EnhancedFlowVisualizer: React.FC = () => {
           </div>
         </div>
 
-        {/* Redux Flow Steps - Full width responsive grid */}
-        <div className="relative mb-2 sm:mb-3 lg:mb-6 w-full">
-          {/* Large and medium screens: full width grid */}
-          <div className="hidden md:grid grid-cols-9 items-center gap-2 lg:gap-4 w-full">
+        {/* Redux Flow Steps - Full width responsive layout */}
+        <div className="relative mb-2 sm:mb-3 lg:mb-6 w-full overflow-x-auto overflow-y-hidden">
+          {/* All screens: flex layout with responsive sizing */}
+          <div className="flex items-center justify-between min-w-full gap-1 sm:gap-2 md:gap-3 lg:gap-4">
             {flowSteps.map((step, index) => (
               <React.Fragment key={step.id}>
-                {/* Step Card - takes 2 columns */}
-                <div className="col-span-2">
+                {/* Step Card - responsive sizing */}
+                <div className="flex-1 min-w-0 max-w-[18%] sm:max-w-[19%] md:max-w-[20%]">
                   <StepCard
                     step={step}
                     index={index}
@@ -297,11 +297,11 @@ export const EnhancedFlowVisualizer: React.FC = () => {
                   />
                 </div>
                 
-                {/* Flow Line - takes 1 column between steps */}
+                {/* Flow Line - between steps */}
                 {index < flowSteps.length - 1 && (
-                  <div className="col-span-1 flex items-center justify-center">
+                  <div className="flex-shrink-0 w-2 sm:w-3 md:w-4 lg:w-6 flex items-center justify-center">
                     <motion.div
-                      className="w-full h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
+                      className="w-full h-0.5 md:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -327,55 +327,6 @@ export const EnhancedFlowVisualizer: React.FC = () => {
                 )}
               </React.Fragment>
             ))}
-          </div>
-
-          {/* Small screens: horizontal scroll */}
-          <div className="md:hidden overflow-x-auto overflow-y-hidden">
-            <div className="flex items-center gap-1 sm:gap-2 min-w-max px-1">
-              {flowSteps.map((step, index) => (
-                <React.Fragment key={step.id}>
-                  {/* Step Card - compact for mobile */}
-                  <div className="flex-shrink-0 w-16 sm:w-20 h-12 sm:h-14">
-                    <StepCard
-                      step={step}
-                      index={index}
-                      isActive={currentEvent?.type === step.id}
-                      currentEvent={currentEvent}
-                      latestEvents={latestEvents}
-                    />
-                  </div>
-                  
-                  {/* Flow Line - between steps */}
-                  {index < flowSteps.length - 1 && (
-                    <div className="flex-shrink-0 flex items-center">
-                      <motion.div
-                        className="w-3 sm:w-4 h-0.5 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                      >
-                        <AnimatePresence>
-                          {isAnimating && (
-                            <motion.div
-                              className="absolute inset-0 bg-redux-flow-gradient rounded-full"
-                              initial={{ x: '-100%', opacity: 0.7 }}
-                              animate={{ x: '100%', opacity: 1 }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                repeatType: 'loop',
-                                ease: 'easeInOut',
-                                delay: index * 0.2
-                              }}
-                            />
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
           </div>
         </div>
       </div>
