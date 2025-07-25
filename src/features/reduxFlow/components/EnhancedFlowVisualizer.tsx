@@ -14,7 +14,9 @@ import { useToast } from '@/hooks/use-toast';
 const flowSteps = [
   { 
     id: 'action', 
-    label: 'Action Dispatched', 
+    label: 'Action Dispatched',
+    shortLabel: 'Action',
+    mobileLabel: 'Act',
     color: 'action',
     icon: '🚀',
     description: 'An action object is created and dispatched to the store',
@@ -22,7 +24,9 @@ const flowSteps = [
   },
   { 
     id: 'reducer', 
-    label: 'Reducer Processing', 
+    label: 'Reducer Processing',
+    shortLabel: 'Reducer',
+    mobileLabel: 'Red',
     color: 'reducer',
     icon: '⚙️',
     description: 'Pure functions that calculate the new state based on the action',
@@ -30,7 +34,9 @@ const flowSteps = [
   },
   { 
     id: 'store', 
-    label: 'Store Updated', 
+    label: 'Store Updated',
+    shortLabel: 'Store',
+    mobileLabel: 'Str',
     color: 'store',
     icon: '🏪',
     description: 'The Redux store holds the new state and notifies subscribers',
@@ -38,7 +44,9 @@ const flowSteps = [
   },
   { 
     id: 'selector', 
-    label: 'Selectors Fired', 
+    label: 'Selectors Fired',
+    shortLabel: 'Selectors',
+    mobileLabel: 'Sel',
     color: 'selector',
     icon: '🎯',
     description: 'Functions that extract specific pieces of data from the store',
@@ -46,7 +54,9 @@ const flowSteps = [
   },
   { 
     id: 'render', 
-    label: 'Components Re-rendered', 
+    label: 'Components Re-rendered',
+    shortLabel: 'Re-render',
+    mobileLabel: 'Ren',
     color: 'render',
     icon: '⚡',
     description: 'React components update with the new state values',
@@ -144,113 +154,121 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
         />
       )}
 
-      <div className="p-0.5 sm:p-1 md:p-2 lg:p-3 h-full flex flex-col items-center justify-center text-center">
-        {/* Icon */}
-        <div className={`
-          w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 xl:w-10 xl:h-10 rounded-full flex items-center justify-center text-2xs sm:text-xs md:text-sm lg:text-base xl:text-lg mb-0.5 sm:mb-1 lg:mb-2
-          ${isActive
-            ? `bg-${step.color} text-white`
-            : hasEvents
-            ? `bg-${step.color}/20 text-${step.color}`
-            : 'bg-muted text-muted-foreground'
-          }
-        `}>
-          {step.icon}
-        </div>
-        
-        {/* Title - ultra-responsive text */}
-        <h4 className={`font-medium text-center leading-tight ${isActive ? `text-${step.color}` : 'text-foreground'}`}>
-          <span className="hidden xl:block text-sm">{step.label}</span>
-          <span className="hidden lg:block xl:hidden text-xs">{step.label.length > 12 ? step.label.split(' ')[0] + '...' : step.label}</span>
-          <span className="hidden md:block lg:hidden text-2xs">{step.label.split(' ')[0]}</span>
-          <span className="hidden sm:block md:hidden text-3xs">{step.label.split(' ')[0].slice(0, 6)}</span>
-          <span className="sm:hidden text-3xs">{step.label.split(' ')[0].slice(0, 4)}</span>
-        </h4>
-        
-        {/* Event count badge - only on larger screens */}
-        {hasEvents && (
-          <Badge variant="outline" className="text-3xs h-3 px-0.5 mt-0.5 hidden lg:block">
-            {stepEvents.length}
-          </Badge>
-        )}
-
-        {/* Event indicator for larger screens */}
-        {isActive && currentEvent && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`w-full p-2 rounded bg-${step.color}/20 border border-${step.color}/30 hidden lg:block`}
-          >
-            <div className="text-xs">
-              <div className="font-medium truncate">{currentEvent.actionType}</div>
-              <div className="text-muted-foreground text-xs mt-1">
-                {new Date(currentEvent.timestamp).toLocaleTimeString()}
-              </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="p-0.5 sm:p-1 md:p-2 lg:p-3 h-full flex flex-col items-center justify-center text-center cursor-pointer">
+            {/* Icon */}
+            <div className={`
+              w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 xl:w-10 xl:h-10 rounded-full flex items-center justify-center text-2xs sm:text-xs md:text-sm lg:text-base xl:text-lg mb-0.5 sm:mb-1 lg:mb-2 flex-shrink-0
+              ${isActive
+                ? `bg-${step.color} text-white`
+                : hasEvents
+                ? `bg-${step.color}/20 text-${step.color}`
+                : 'bg-muted text-muted-foreground'
+              }
+            `}>
+              {step.icon}
             </div>
-          </motion.div>
-        )}
+            
+            {/* Title - responsive with proper labels */}
+            <h4 className={`font-medium text-center leading-tight flex-shrink-0 ${isActive ? `text-${step.color}` : 'text-foreground'}`}>
+              <span className="hidden xl:block text-sm whitespace-nowrap">{step.label}</span>
+              <span className="hidden lg:block xl:hidden text-xs whitespace-nowrap">{step.shortLabel}</span>
+              <span className="hidden md:block lg:hidden text-xs whitespace-nowrap">{step.shortLabel}</span>
+              <span className="hidden sm:block md:hidden text-xs whitespace-nowrap">{step.mobileLabel}</span>
+              <span className="sm:hidden text-xs whitespace-nowrap">{step.mobileLabel}</span>
+            </h4>
+            
+            {/* Event count badge - only on larger screens */}
+            {hasEvents && (
+              <Badge variant="outline" className="text-3xs h-3 px-0.5 mt-0.5 hidden lg:block flex-shrink-0">
+                {stepEvents.length}
+              </Badge>
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-medium">{step.label}</p>
+          <p className="text-xs text-muted-foreground mt-1">{step.description}</p>
+        </TooltipContent>
+      </Tooltip>
 
-        {/* Expandable details - only on large screens */}
-        <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="hidden xl:block w-full mt-2">
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full justify-between p-1 h-auto text-xs">
-              <span className="text-muted-foreground">
-                {isExpanded ? 'Hide' : 'Show'}
-              </span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-            </Button>
-          </CollapsibleTrigger>
-          
-          <CollapsibleContent className="mt-2">
-            <div className="space-y-2">
-              {/* Latest events for this step */}
-              {stepEvents.length > 0 && (
-                <div>
-                  <h5 className="text-xs font-semibold mb-1">Recent:</h5>
-                  <ScrollArea className="h-20">
-                    <div className="space-y-1">
-                      {stepEvents.slice(-2).map((event, idx) => (
-                        <div key={idx} className="text-xs p-2 bg-muted/50 rounded">
-                          <div className="font-medium truncate">{event.actionType}</div>
-                          <div className="text-muted-foreground">
-                            {new Date(event.timestamp).toLocaleTimeString()}
-                          </div>
+      {/* Event indicator for larger screens */}
+      {isActive && currentEvent && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`w-full p-2 rounded bg-${step.color}/20 border border-${step.color}/30 hidden lg:block`}
+        >
+          <div className="text-xs">
+            <div className="font-medium truncate">{currentEvent.actionType}</div>
+            <div className="text-muted-foreground text-xs mt-1">
+              {new Date(currentEvent.timestamp).toLocaleTimeString()}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Expandable details - only on large screens */}
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="hidden xl:block w-full mt-2">
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full justify-between p-1 h-auto text-xs">
+            <span className="text-muted-foreground">
+              {isExpanded ? 'Hide' : 'Show'}
+            </span>
+            <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          </Button>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent className="mt-2">
+          <div className="space-y-2">
+            {/* Latest events for this step */}
+            {stepEvents.length > 0 && (
+              <div>
+                <h5 className="text-xs font-semibold mb-1">Recent:</h5>
+                <ScrollArea className="h-20">
+                  <div className="space-y-1">
+                    {stepEvents.slice(-2).map((event, idx) => (
+                      <div key={idx} className="text-xs p-2 bg-muted/50 rounded">
+                        <div className="font-medium truncate">{event.actionType}</div>
+                        <div className="text-muted-foreground">
+                          {new Date(event.timestamp).toLocaleTimeString()}
                         </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
-
-              {/* Action buttons */}
-              <div className="flex gap-1">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    copyToClipboard(JSON.stringify(stepEvents, null, 2));
-                  }}
-                  className="text-xs flex-1"
-                >
-                  <Copy className="w-3 h-3" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    exportLogs();
-                  }}
-                  className="text-xs flex-1"
-                >
-                  <Download className="w-3 h-3" />
-                </Button>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex gap-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyToClipboard(JSON.stringify(stepEvents, null, 2));
+                }}
+                className="text-xs flex-1"
+              >
+                <Copy className="w-3 h-3" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  exportLogs();
+                }}
+                className="text-xs flex-1"
+              >
+                <Download className="w-3 h-3" />
+              </Button>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </motion.div>
   );
 };
@@ -262,10 +280,10 @@ export const EnhancedFlowVisualizer: React.FC = () => {
   const [showMiniMap, setShowMiniMap] = useState(false);
 
   return (
-    <Card className="w-full bg-card border-border">
-      <div className="p-1 sm:p-2 lg:p-4">
-        <div className="flex items-center justify-between mb-1 sm:mb-2 lg:mb-3">
-          <h3 className="text-xs sm:text-sm lg:text-lg font-semibold text-foreground">
+    <div className="w-full bg-card border border-border rounded-lg overflow-hidden">
+      <div className="p-2 sm:p-3 lg:p-4">
+        <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
+          <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-foreground">
             🎯 <span className="hidden sm:inline">Redux Flow</span><span className="sm:hidden">Flow</span>
           </h3>
           <div className="flex gap-1">
@@ -280,14 +298,13 @@ export const EnhancedFlowVisualizer: React.FC = () => {
           </div>
         </div>
 
-        {/* Redux Flow Steps - Full width responsive layout */}
-        <div className="relative mb-2 sm:mb-3 lg:mb-6 w-full overflow-x-auto overflow-y-hidden">
-          {/* All screens: flex layout with responsive sizing */}
-          <div className="flex items-center justify-between min-w-full gap-1 sm:gap-2 md:gap-3 lg:gap-4">
+        {/* Redux Flow Steps - Full width responsive layout, no vertical overflow */}
+        <div className="w-full overflow-x-auto overflow-y-hidden">
+          <div className="flex items-stretch justify-between min-w-[640px] gap-2 sm:gap-3 md:gap-4 lg:gap-6 h-16 sm:h-20 md:h-24 lg:h-28">
             {flowSteps.map((step, index) => (
               <React.Fragment key={step.id}>
-                {/* Step Card - responsive sizing */}
-                <div className="flex-1 min-w-0 max-w-[18%] sm:max-w-[19%] md:max-w-[20%]">
+                {/* Step Card - equal flex sizing with min-width */}
+                <div className="flex-1 min-w-[100px] sm:min-w-[120px] md:min-w-[140px]">
                   <StepCard
                     step={step}
                     index={index}
@@ -299,9 +316,9 @@ export const EnhancedFlowVisualizer: React.FC = () => {
                 
                 {/* Flow Line - between steps */}
                 {index < flowSteps.length - 1 && (
-                  <div className="flex-shrink-0 w-2 sm:w-3 md:w-4 lg:w-6 flex items-center justify-center">
+                  <div className="flex-shrink-0 w-4 sm:w-6 md:w-8 lg:w-12 flex items-center justify-center">
                     <motion.div
-                      className="w-full h-0.5 md:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
+                      className="w-full h-0.5 sm:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -352,6 +369,6 @@ export const EnhancedFlowVisualizer: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </Card>
+    </div>
   );
 };
