@@ -144,10 +144,10 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
         />
       )}
 
-      <div className="p-1 sm:p-2 lg:p-3 h-full flex flex-col items-center justify-center text-center">
+      <div className="p-0.5 sm:p-1 md:p-2 lg:p-3 h-full flex flex-col items-center justify-center text-center">
         {/* Icon */}
         <div className={`
-          w-5 h-5 sm:w-7 sm:h-7 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm lg:text-lg mb-1 sm:mb-2
+          w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 xl:w-10 xl:h-10 rounded-full flex items-center justify-center text-2xs sm:text-xs md:text-sm lg:text-base xl:text-lg mb-0.5 sm:mb-1 lg:mb-2
           ${isActive
             ? `bg-${step.color} text-white`
             : hasEvents
@@ -158,16 +158,18 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
           {step.icon}
         </div>
         
-        {/* Title */}
-        <h4 className={`font-medium text-center leading-tight text-2xs sm:text-xs lg:text-sm ${isActive ? `text-${step.color}` : 'text-foreground'}`}>
-          <span className="hidden lg:block">{step.label}</span>
-          <span className="hidden sm:block lg:hidden">{step.label.split(' ')[0]}</span>
-          <span className="sm:hidden">{step.label.split(' ')[0]}</span>
+        {/* Title - ultra-responsive text */}
+        <h4 className={`font-medium text-center leading-tight ${isActive ? `text-${step.color}` : 'text-foreground'}`}>
+          <span className="hidden xl:block text-sm">{step.label}</span>
+          <span className="hidden lg:block xl:hidden text-xs">{step.label.length > 12 ? step.label.split(' ')[0] + '...' : step.label}</span>
+          <span className="hidden md:block lg:hidden text-2xs">{step.label.split(' ')[0]}</span>
+          <span className="hidden sm:block md:hidden text-3xs">{step.label.split(' ')[0].slice(0, 6)}</span>
+          <span className="sm:hidden text-3xs">{step.label.split(' ')[0].slice(0, 4)}</span>
         </h4>
         
-        {/* Event count badge */}
+        {/* Event count badge - only on larger screens */}
         {hasEvents && (
-          <Badge variant="outline" className="text-2xs h-4 px-1 mt-1 hidden sm:block">
+          <Badge variant="outline" className="text-3xs h-3 px-0.5 mt-0.5 hidden lg:block">
             {stepEvents.length}
           </Badge>
         )}
@@ -277,52 +279,54 @@ export const EnhancedFlowVisualizer: React.FC = () => {
         </div>
       </div>
 
-      {/* Animated flow line */}
+      {/* Animated flow line - Single horizontal row with scroll */}
       <div className="relative mb-2 sm:mb-3 lg:mb-6">
-        <div className="grid grid-cols-9 gap-0 items-center">
-          {flowSteps.map((step, index) => (
-            <React.Fragment key={step.id}>
-              {/* Step Card - takes 2 columns */}
-              <div className="col-span-2 h-16 sm:h-20 lg:h-28">
-                <StepCard
-                  step={step}
-                  index={index}
-                  isActive={currentEvent?.type === step.id}
-                  currentEvent={currentEvent}
-                  latestEvents={latestEvents}
-                />
-              </div>
-              
-              {/* Flow Line - takes 1 column, except after last step */}
-              {index < flowSteps.length - 1 && (
-                <div className="col-span-1 flex justify-center">
-                  <motion.div
-                    className="w-1 sm:w-2 lg:w-4 h-0.5 sm:h-0.5 lg:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                  >
-                    <AnimatePresence>
-                      {isAnimating && (
-                        <motion.div
-                          className="absolute inset-0 bg-redux-flow-gradient rounded-full"
-                          initial={{ x: '-100%', opacity: 0.7 }}
-                          animate={{ x: '100%', opacity: 1 }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            repeatType: 'loop',
-                            ease: 'easeInOut',
-                            delay: index * 0.2
-                          }}
-                        />
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
+        <div className="overflow-x-auto">
+          <div className="flex items-center justify-start min-w-max gap-1 sm:gap-2 lg:gap-3 px-1">
+            {flowSteps.map((step, index) => (
+              <React.Fragment key={step.id}>
+                {/* Step Card - responsive flex item */}
+                <div className="flex-shrink-0 w-12 sm:w-16 md:w-20 lg:w-24 xl:w-28 h-12 sm:h-16 md:h-18 lg:h-20 xl:h-24">
+                  <StepCard
+                    step={step}
+                    index={index}
+                    isActive={currentEvent?.type === step.id}
+                    currentEvent={currentEvent}
+                    latestEvents={latestEvents}
+                  />
                 </div>
-              )}
-            </React.Fragment>
-          ))}
+                
+                {/* Flow Line - between steps */}
+                {index < flowSteps.length - 1 && (
+                  <div className="flex-shrink-0 flex items-center">
+                    <motion.div
+                      className="w-2 sm:w-3 md:w-4 lg:w-6 xl:w-8 h-0.5 lg:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <AnimatePresence>
+                        {isAnimating && (
+                          <motion.div
+                            className="absolute inset-0 bg-redux-flow-gradient rounded-full"
+                            initial={{ x: '-100%', opacity: 0.7 }}
+                            animate={{ x: '100%', opacity: 1 }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              repeatType: 'loop',
+                              ease: 'easeInOut',
+                              delay: index * 0.2
+                            }}
+                          />
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
       </div>
 

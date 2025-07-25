@@ -69,6 +69,10 @@ export default {
 				selector: 'hsl(var(--selector-color))',
 				render: 'hsl(var(--render-color))'
 			},
+			fontSize: {
+				'3xs': '0.5rem',
+				'2xs': '0.625rem'
+			},
 			backgroundImage: {
 				'redux-flow': 'var(--redux-flow-gradient)'
 			},
