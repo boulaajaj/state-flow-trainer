@@ -144,10 +144,10 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
         />
       )}
 
-      <div className="p-2 sm:p-3 lg:p-4 h-full flex flex-col items-center justify-center text-center">
+      <div className="p-1 sm:p-2 lg:p-3 h-full flex flex-col items-center justify-center text-center">
         {/* Icon */}
         <div className={`
-          w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-sm sm:text-lg lg:text-xl mb-2 sm:mb-3
+          w-5 h-5 sm:w-7 sm:h-7 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm lg:text-lg mb-1 sm:mb-2
           ${isActive
             ? `bg-${step.color} text-white`
             : hasEvents
@@ -159,15 +159,15 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
         </div>
         
         {/* Title */}
-        <h4 className={`font-semibold text-center leading-tight mb-1 sm:mb-2 ${isActive ? `text-${step.color}` : 'text-foreground'}`}>
-          <span className="hidden lg:block text-sm">{step.label}</span>
-          <span className="hidden sm:block lg:hidden text-xs">{step.label.split(' ')[0]}</span>
-          <span className="sm:hidden text-xs">{step.label.split(' ')[0]}</span>
+        <h4 className={`font-medium text-center leading-tight text-2xs sm:text-xs lg:text-sm ${isActive ? `text-${step.color}` : 'text-foreground'}`}>
+          <span className="hidden lg:block">{step.label}</span>
+          <span className="hidden sm:block lg:hidden">{step.label.split(' ')[0]}</span>
+          <span className="sm:hidden">{step.label.split(' ')[0]}</span>
         </h4>
         
         {/* Event count badge */}
         {hasEvents && (
-          <Badge variant="outline" className="text-xs mb-2 hidden sm:block">
+          <Badge variant="outline" className="text-2xs h-4 px-1 mt-1 hidden sm:block">
             {stepEvents.length}
           </Badge>
         )}
@@ -260,31 +260,30 @@ export const EnhancedFlowVisualizer: React.FC = () => {
   const [showMiniMap, setShowMiniMap] = useState(false);
 
   return (
-    <Card className="p-2 sm:p-4 lg:p-6 bg-card border-border">
-      <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-        <h3 className="text-sm sm:text-lg lg:text-xl font-semibold text-foreground">
-          🎯 <span className="hidden sm:inline">Redux Flow Playground</span><span className="sm:hidden">Redux Flow</span>
+    <Card className="p-1 sm:p-2 lg:p-4 bg-card border-border">
+      <div className="flex items-center justify-between mb-1 sm:mb-2 lg:mb-3">
+        <h3 className="text-xs sm:text-sm lg:text-lg font-semibold text-foreground">
+          🎯 <span className="hidden sm:inline">Redux Flow</span><span className="sm:hidden">Flow</span>
         </h3>
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowMiniMap(!showMiniMap)}
-            className="text-xs hidden lg:flex"
+            className="text-xs h-6 px-2 hidden lg:flex"
           >
-            <Eye className="w-3 h-3 mr-1" />
-            {showMiniMap ? 'Hide' : 'Show'} Mini Map
+            <Eye className="w-3 h-3" />
           </Button>
         </div>
       </div>
 
       {/* Animated flow line */}
-      <div className="relative mb-4 sm:mb-6 lg:mb-8">
+      <div className="relative mb-2 sm:mb-3 lg:mb-6">
         <div className="grid grid-cols-9 gap-0 items-center">
           {flowSteps.map((step, index) => (
             <React.Fragment key={step.id}>
               {/* Step Card - takes 2 columns */}
-              <div className="col-span-2 h-32 sm:h-36 lg:h-40">
+              <div className="col-span-2 h-16 sm:h-20 lg:h-28">
                 <StepCard
                   step={step}
                   index={index}
@@ -298,7 +297,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
               {index < flowSteps.length - 1 && (
                 <div className="col-span-1 flex justify-center">
                   <motion.div
-                    className="w-4 sm:w-6 lg:w-8 h-1 sm:h-1.5 lg:h-2 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
+                    className="w-1 sm:w-2 lg:w-4 h-0.5 sm:h-0.5 lg:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
