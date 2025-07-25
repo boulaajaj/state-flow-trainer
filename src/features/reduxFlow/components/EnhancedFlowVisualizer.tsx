@@ -89,7 +89,7 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
   return (
     <motion.div
       className={`
-        relative p-1 sm:p-2 lg:p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer
+        relative rounded-lg border-2 transition-all duration-300 cursor-pointer h-full
         ${isActive
           ? `border-${step.color} bg-${step.color}/10 shadow-${step.color}-glow`
           : hasEvents
@@ -131,49 +131,7 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
           }}
           transition={{ duration: 0.5, repeat: 3 }}
         >
-          <Zap className={`w-3 h-3 sm:w-6 sm:h-6 text-${step.color} fill-current`} />
-        </motion.div>
-      )}
-
-      <div className="flex flex-col items-center">
-        <div className={`
-          w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm lg:text-lg mb-1
-          ${isActive
-            ? `bg-${step.color} text-white`
-            : hasEvents
-            ? `bg-${step.color}/20 text-${step.color}`
-            : 'bg-muted text-muted-foreground'
-          }
-        `}>
-          {step.icon}
-        </div>
-        
-        {/* Show full label on lg+, abbreviated on sm+, hide on xs */}
-        <h4 className={`font-semibold text-center leading-tight ${isActive ? `text-${step.color}` : 'text-foreground'} hidden lg:block text-xs`}>
-          {step.label}
-        </h4>
-        <h4 className={`font-semibold text-center leading-tight ${isActive ? `text-${step.color}` : 'text-foreground'} hidden sm:block lg:hidden text-xs`}>
-          {step.label.split(' ')[0]}
-        </h4>
-        
-        {/* Event count badge - only on larger screens */}
-        {hasEvents && (
-          <Badge variant="outline" className="text-xs mt-1 hidden sm:block">
-            {stepEvents.length}
-          </Badge>
-        )}
-      </div>
-
-      {/* Event indicator - simplified for smaller screens */}
-      {isActive && currentEvent && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`mt-1 p-1 sm:p-2 rounded bg-${step.color}/20 border border-${step.color}/30 hidden sm:block`}
-        >
-          <div className="flex items-center justify-center text-xs">
-            <span className="font-medium truncate">{currentEvent.actionType}</span>
-          </div>
+          <Zap className={`w-3 h-3 sm:w-4 sm:h-4 lg:w-6 lg:h-6 text-${step.color} fill-current`} />
         </motion.div>
       )}
 
@@ -186,75 +144,111 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
         />
       )}
 
-      {/* Expandable details - hidden on mobile */}
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="hidden lg:block">
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0 h-auto mt-2">
-            <span className="text-xs text-muted-foreground">
-              {isExpanded ? 'Hide' : 'Show'}
-            </span>
-            <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-          </Button>
-        </CollapsibleTrigger>
+      <div className="p-2 sm:p-3 lg:p-4 h-full flex flex-col items-center justify-center text-center">
+        {/* Icon */}
+        <div className={`
+          w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-sm sm:text-lg lg:text-xl mb-2 sm:mb-3
+          ${isActive
+            ? `bg-${step.color} text-white`
+            : hasEvents
+            ? `bg-${step.color}/20 text-${step.color}`
+            : 'bg-muted text-muted-foreground'
+          }
+        `}>
+          {step.icon}
+        </div>
         
-        <CollapsibleContent className="mt-2">
-          <div className="space-y-2">
-            {/* Latest events for this step */}
-            {stepEvents.length > 0 && (
-              <div>
-                <h5 className="text-xs font-semibold mb-1">Recent Events:</h5>
-                <ScrollArea className="h-20">
-                  <div className="space-y-1">
-                    {stepEvents.slice(-3).map((event, idx) => (
-                      <div key={idx} className="text-xs p-2 bg-muted/50 rounded">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">{event.actionType}</span>
-                          <span className="text-muted-foreground">
-                            {new Date(event.timestamp).toLocaleTimeString()}
-                          </span>
-                        </div>
-                        {event.payload && (
-                          <pre className="mt-1 text-xs text-muted-foreground overflow-hidden">
-                            {JSON.stringify(event.payload, null, 2).slice(0, 100)}...
-                          </pre>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-            )}
+        {/* Title */}
+        <h4 className={`font-semibold text-center leading-tight mb-1 sm:mb-2 ${isActive ? `text-${step.color}` : 'text-foreground'}`}>
+          <span className="hidden lg:block text-sm">{step.label}</span>
+          <span className="hidden sm:block lg:hidden text-xs">{step.label.split(' ')[0]}</span>
+          <span className="sm:hidden text-xs">{step.label.split(' ')[0]}</span>
+        </h4>
+        
+        {/* Event count badge */}
+        {hasEvents && (
+          <Badge variant="outline" className="text-xs mb-2 hidden sm:block">
+            {stepEvents.length}
+          </Badge>
+        )}
 
-            {/* Action buttons */}
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  copyToClipboard(JSON.stringify(stepEvents, null, 2));
-                }}
-                className="text-xs"
-              >
-                <Copy className="w-3 h-3 mr-1" />
-                Copy JSON
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  exportLogs();
-                }}
-                className="text-xs"
-              >
-                <Download className="w-3 h-3 mr-1" />
-                Export
-              </Button>
+        {/* Event indicator for larger screens */}
+        {isActive && currentEvent && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`w-full p-2 rounded bg-${step.color}/20 border border-${step.color}/30 hidden lg:block`}
+          >
+            <div className="text-xs">
+              <div className="font-medium truncate">{currentEvent.actionType}</div>
+              <div className="text-muted-foreground text-xs mt-1">
+                {new Date(currentEvent.timestamp).toLocaleTimeString()}
+              </div>
             </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+          </motion.div>
+        )}
+
+        {/* Expandable details - only on large screens */}
+        <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="hidden xl:block w-full mt-2">
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="w-full justify-between p-1 h-auto text-xs">
+              <span className="text-muted-foreground">
+                {isExpanded ? 'Hide' : 'Show'}
+              </span>
+              <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+            </Button>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent className="mt-2">
+            <div className="space-y-2">
+              {/* Latest events for this step */}
+              {stepEvents.length > 0 && (
+                <div>
+                  <h5 className="text-xs font-semibold mb-1">Recent:</h5>
+                  <ScrollArea className="h-20">
+                    <div className="space-y-1">
+                      {stepEvents.slice(-2).map((event, idx) => (
+                        <div key={idx} className="text-xs p-2 bg-muted/50 rounded">
+                          <div className="font-medium truncate">{event.actionType}</div>
+                          <div className="text-muted-foreground">
+                            {new Date(event.timestamp).toLocaleTimeString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex gap-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    copyToClipboard(JSON.stringify(stepEvents, null, 2));
+                  }}
+                  className="text-xs flex-1"
+                >
+                  <Copy className="w-3 h-3" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    exportLogs();
+                  }}
+                  className="text-xs flex-1"
+                >
+                  <Download className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
     </motion.div>
   );
 };
@@ -285,11 +279,12 @@ export const EnhancedFlowVisualizer: React.FC = () => {
       </div>
 
       {/* Animated flow line */}
-      <div className="relative mb-2 sm:mb-4 lg:mb-6">
-        <div className="flex items-center justify-between gap-1 sm:gap-2">
+      <div className="relative mb-4 sm:mb-6 lg:mb-8">
+        <div className="grid grid-cols-9 gap-0 items-center">
           {flowSteps.map((step, index) => (
             <React.Fragment key={step.id}>
-              <div className="flex-1 min-w-0">
+              {/* Step Card - takes 2 columns */}
+              <div className="col-span-2 h-32 sm:h-36 lg:h-40">
                 <StepCard
                   step={step}
                   index={index}
@@ -299,29 +294,33 @@ export const EnhancedFlowVisualizer: React.FC = () => {
                 />
               </div>
               
+              {/* Flow Line - takes 1 column, except after last step */}
               {index < flowSteps.length - 1 && (
-                <motion.div
-                  className="w-2 sm:w-4 lg:w-8 h-0.5 sm:h-1 lg:h-2 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <AnimatePresence>
-                    {isAnimating && (
-                      <motion.div
-                        className="absolute inset-0 bg-redux-flow-gradient rounded-full"
-                        initial={{ x: '-100%', opacity: 0.7 }}
-                        animate={{ x: '100%', opacity: 1 }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          repeatType: 'loop',
-                          ease: 'easeInOut'
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+                <div className="col-span-1 flex justify-center">
+                  <motion.div
+                    className="w-4 sm:w-6 lg:w-8 h-1 sm:h-1.5 lg:h-2 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <AnimatePresence>
+                      {isAnimating && (
+                        <motion.div
+                          className="absolute inset-0 bg-redux-flow-gradient rounded-full"
+                          initial={{ x: '-100%', opacity: 0.7 }}
+                          animate={{ x: '100%', opacity: 1 }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            repeatType: 'loop',
+                            ease: 'easeInOut',
+                            delay: index * 0.2
+                          }}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                </div>
               )}
             </React.Fragment>
           ))}
