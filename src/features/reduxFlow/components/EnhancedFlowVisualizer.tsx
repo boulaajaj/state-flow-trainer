@@ -89,7 +89,7 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
   return (
     <motion.div
       className={`
-        relative p-2 sm:p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer
+        relative p-1 sm:p-2 lg:p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer
         ${isActive
           ? `border-${step.color} bg-${step.color}/10 shadow-${step.color}-glow`
           : hasEvents
@@ -124,83 +124,74 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
       {/* Lightning effect for render step */}
       {isActive && step.id === 'render' && (
         <motion.div
-          className="absolute -top-2 -right-2"
+          className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2"
           animate={{
             rotate: [0, 10, -10, 0],
             scale: [1, 1.2, 1],
           }}
           transition={{ duration: 0.5, repeat: 3 }}
         >
-          <Zap className={`w-6 h-6 text-${step.color} fill-current`} />
+          <Zap className={`w-3 h-3 sm:w-6 sm:h-6 text-${step.color} fill-current`} />
         </motion.div>
       )}
 
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1 sm:gap-2">
-          <div className={`
-            w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-lg
-            ${isActive
-              ? `bg-${step.color} text-white`
-              : hasEvents
-              ? `bg-${step.color}/20 text-${step.color}`
-              : 'bg-muted text-muted-foreground'
-            }
-          `}>
-            {step.icon}
-          </div>
-          <div className="min-w-0">
-            <h4 className={`font-semibold text-xs sm:text-sm ${isActive ? `text-${step.color}` : 'text-foreground'} hidden sm:block`}>
-              {step.label}
-            </h4>
-            <h4 className={`font-semibold text-xs ${isActive ? `text-${step.color}` : 'text-foreground'} sm:hidden truncate`}>
-              {step.label.split(' ')[0]}
-            </h4>
-            <p className="text-xs text-muted-foreground hidden sm:block">{step.description}</p>
-          </div>
+      <div className="flex flex-col items-center">
+        <div className={`
+          w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm lg:text-lg mb-1
+          ${isActive
+            ? `bg-${step.color} text-white`
+            : hasEvents
+            ? `bg-${step.color}/20 text-${step.color}`
+            : 'bg-muted text-muted-foreground'
+          }
+        `}>
+          {step.icon}
         </div>
-
-        <div className="flex items-center gap-1">
-          {hasEvents && (
-            <Badge variant="outline" className="text-xs">
-              {stepEvents.length}
-            </Badge>
-          )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
-                <HelpCircle className="w-3 h-3" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="max-w-xs text-sm">{step.learnMore}</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        
+        {/* Show full label on lg+, abbreviated on sm+, hide on xs */}
+        <h4 className={`font-semibold text-center leading-tight ${isActive ? `text-${step.color}` : 'text-foreground'} hidden lg:block text-xs`}>
+          {step.label}
+        </h4>
+        <h4 className={`font-semibold text-center leading-tight ${isActive ? `text-${step.color}` : 'text-foreground'} hidden sm:block lg:hidden text-xs`}>
+          {step.label.split(' ')[0]}
+        </h4>
+        
+        {/* Event count badge - only on larger screens */}
+        {hasEvents && (
+          <Badge variant="outline" className="text-xs mt-1 hidden sm:block">
+            {stepEvents.length}
+          </Badge>
+        )}
       </div>
 
-      {/* Event indicator */}
+      {/* Event indicator - simplified for smaller screens */}
       {isActive && currentEvent && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`mb-2 p-2 rounded bg-${step.color}/20 border border-${step.color}/30`}
+          className={`mt-1 p-1 sm:p-2 rounded bg-${step.color}/20 border border-${step.color}/30 hidden sm:block`}
         >
-          <div className="flex items-center gap-2 text-xs">
-            <Activity className="w-3 h-3" />
-            <span className="font-medium">{currentEvent.actionType}</span>
-            <Badge variant="outline" className="text-xs">
-              {new Date(currentEvent.timestamp).toLocaleTimeString()}
-            </Badge>
+          <div className="flex items-center justify-center text-xs">
+            <span className="font-medium truncate">{currentEvent.actionType}</span>
           </div>
         </motion.div>
       )}
 
-      {/* Expandable details */}
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+      {/* Mobile active indicator - just a dot */}
+      {isActive && currentEvent && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className={`absolute -top-1 -right-1 w-2 h-2 bg-${step.color} rounded-full sm:hidden`}
+        />
+      )}
+
+      {/* Expandable details - hidden on mobile */}
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="hidden lg:block">
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+          <Button variant="ghost" className="w-full justify-between p-0 h-auto mt-2">
             <span className="text-xs text-muted-foreground">
-              {isExpanded ? 'Hide Details' : 'Show Details'}
+              {isExpanded ? 'Hide' : 'Show'}
             </span>
             <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
           </Button>
@@ -275,17 +266,17 @@ export const EnhancedFlowVisualizer: React.FC = () => {
   const [showMiniMap, setShowMiniMap] = useState(false);
 
   return (
-    <Card className="p-3 sm:p-6 bg-card border-border">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <h3 className="text-lg sm:text-xl font-semibold text-foreground">
-          🎯 Redux Flow Playground
+    <Card className="p-2 sm:p-4 lg:p-6 bg-card border-border">
+      <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
+        <h3 className="text-sm sm:text-lg lg:text-xl font-semibold text-foreground">
+          🎯 <span className="hidden sm:inline">Redux Flow Playground</span><span className="sm:hidden">Redux Flow</span>
         </h3>
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowMiniMap(!showMiniMap)}
-            className="text-xs hidden md:flex"
+            className="text-xs hidden lg:flex"
           >
             <Eye className="w-3 h-3 mr-1" />
             {showMiniMap ? 'Hide' : 'Show'} Mini Map
@@ -294,8 +285,8 @@ export const EnhancedFlowVisualizer: React.FC = () => {
       </div>
 
       {/* Animated flow line */}
-      <div className="relative mb-3 sm:mb-6">
-        <div className="flex items-center justify-between">
+      <div className="relative mb-2 sm:mb-4 lg:mb-6">
+        <div className="flex items-center justify-between gap-1 sm:gap-2">
           {flowSteps.map((step, index) => (
             <React.Fragment key={step.id}>
               <div className="flex-1 min-w-0">
@@ -310,7 +301,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
               
               {index < flowSteps.length - 1 && (
                 <motion.div
-                  className="flex-1 h-1 sm:h-2 mx-1 sm:mx-4 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
+                  className="w-2 sm:w-4 lg:w-8 h-0.5 sm:h-1 lg:h-2 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: '100%' }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
