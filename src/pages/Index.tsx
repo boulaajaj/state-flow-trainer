@@ -1,25 +1,26 @@
 import React from 'react';
 import { AppLayout } from '@/components/layouts/AppLayout';
-import { ReduxFlowVisualizer } from '@/features/reduxFlow/components/ReduxFlowVisualizer';
+import { EnhancedFlowVisualizer } from '@/features/reduxFlow/components/EnhancedFlowVisualizer';
 import { ExplanationPanel } from '@/features/reduxFlow/components/ExplanationPanel';
 import { ActionLogger } from '@/features/reduxFlow/components/ActionLogger';
 import { StateInspector } from '@/features/reduxFlow/components/StateInspector';
 import { CounterModule } from '@/modules/Counter/components/CounterModule';
 import { TodoModule } from '@/modules/Todo/components/TodoModule';
 import { AuthModule } from '@/modules/Auth/components/AuthModule';
+import { WeatherModule } from '@/modules/Weather/components/WeatherModule';
 import { motion } from 'framer-motion';
 
 const Index = () => {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Redux Flow Visualization */}
+        {/* Enhanced Redux Flow Visualization */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <ReduxFlowVisualizer />
+          <EnhancedFlowVisualizer />
         </motion.div>
 
         {/* Main Content Grid */}
@@ -48,6 +49,14 @@ const Index = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <AuthModule />
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <WeatherModule />
             </motion.div>
           </div>
 
