@@ -221,16 +221,16 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
         </CollapsibleTrigger>
         
         <CollapsibleContent className="mt-2">
-          <div className="space-y-2">
+          <div className="absolute top-full left-0 right-0 bg-card border border-border rounded-lg shadow-lg p-3 z-50 space-y-2">
             {/* Latest events for this step */}
             {stepEvents.length > 0 && (
               <div>
-                <h5 className="text-xs font-semibold mb-1">Recent:</h5>
+                <h5 className="text-xs font-semibold mb-1 text-foreground">Recent:</h5>
                 <ScrollArea className="h-20">
                   <div className="space-y-1">
                     {stepEvents.slice(-2).map((event, idx) => (
-                      <div key={idx} className="text-xs p-2 bg-muted/50 rounded">
-                        <div className="font-medium truncate">{event.actionType}</div>
+                      <div key={idx} className="text-xs p-2 bg-muted/50 rounded border">
+                        <div className="font-medium truncate text-foreground">{event.actionType}</div>
                         <div className="text-muted-foreground">
                           {new Date(event.timestamp).toLocaleTimeString()}
                         </div>
@@ -250,7 +250,7 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
                   e.stopPropagation();
                   copyToClipboard(JSON.stringify(stepEvents, null, 2));
                 }}
-                className="text-xs flex-1"
+                className="text-xs flex-1 bg-background"
               >
                 <Copy className="w-3 h-3" />
               </Button>
@@ -261,7 +261,7 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
                   e.stopPropagation();
                   exportLogs();
                 }}
-                className="text-xs flex-1"
+                className="text-xs flex-1 bg-background"
               >
                 <Download className="w-3 h-3" />
               </Button>
