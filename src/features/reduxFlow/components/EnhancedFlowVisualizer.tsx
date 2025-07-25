@@ -89,7 +89,7 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
   return (
     <motion.div
       className={`
-        relative p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer
+        relative p-2 sm:p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer
         ${isActive
           ? `border-${step.color} bg-${step.color}/10 shadow-${step.color}-glow`
           : hasEvents
@@ -136,9 +136,9 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
       )}
 
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <div className={`
-            w-10 h-10 rounded-full flex items-center justify-center text-lg
+            w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-lg
             ${isActive
               ? `bg-${step.color} text-white`
               : hasEvents
@@ -148,11 +148,14 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
           `}>
             {step.icon}
           </div>
-          <div>
-            <h4 className={`font-semibold text-sm ${isActive ? `text-${step.color}` : 'text-foreground'}`}>
+          <div className="min-w-0">
+            <h4 className={`font-semibold text-xs sm:text-sm ${isActive ? `text-${step.color}` : 'text-foreground'} hidden sm:block`}>
               {step.label}
             </h4>
-            <p className="text-xs text-muted-foreground">{step.description}</p>
+            <h4 className={`font-semibold text-xs ${isActive ? `text-${step.color}` : 'text-foreground'} sm:hidden truncate`}>
+              {step.label.split(' ')[0]}
+            </h4>
+            <p className="text-xs text-muted-foreground hidden sm:block">{step.description}</p>
           </div>
         </div>
 
@@ -272,9 +275,9 @@ export const EnhancedFlowVisualizer: React.FC = () => {
   const [showMiniMap, setShowMiniMap] = useState(false);
 
   return (
-    <Card className="p-6 bg-card border-border">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">
+    <Card className="p-3 sm:p-6 bg-card border-border">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="text-lg sm:text-xl font-semibold text-foreground">
           🎯 Redux Flow Playground
         </h3>
         <div className="flex gap-2">
@@ -282,7 +285,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => setShowMiniMap(!showMiniMap)}
-            className="text-xs"
+            className="text-xs hidden md:flex"
           >
             <Eye className="w-3 h-3 mr-1" />
             {showMiniMap ? 'Hide' : 'Show'} Mini Map
@@ -291,21 +294,23 @@ export const EnhancedFlowVisualizer: React.FC = () => {
       </div>
 
       {/* Animated flow line */}
-      <div className="relative mb-6">
+      <div className="relative mb-3 sm:mb-6">
         <div className="flex items-center justify-between">
           {flowSteps.map((step, index) => (
             <React.Fragment key={step.id}>
-              <StepCard
-                step={step}
-                index={index}
-                isActive={currentEvent?.type === step.id}
-                currentEvent={currentEvent}
-                latestEvents={latestEvents}
-              />
+              <div className="flex-1 min-w-0">
+                <StepCard
+                  step={step}
+                  index={index}
+                  isActive={currentEvent?.type === step.id}
+                  currentEvent={currentEvent}
+                  latestEvents={latestEvents}
+                />
+              </div>
               
               {index < flowSteps.length - 1 && (
                 <motion.div
-                  className="flex-1 h-2 mx-4 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
+                  className="flex-1 h-1 sm:h-2 mx-1 sm:mx-4 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: '100%' }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}

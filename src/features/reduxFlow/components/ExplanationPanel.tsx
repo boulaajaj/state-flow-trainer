@@ -66,7 +66,7 @@ export const ExplanationPanel: React.FC = () => {
         </h4>
         
         <div className="max-h-64 overflow-y-auto space-y-2">
-          {latestEvents.map((event, index) => (
+          {[...latestEvents].reverse().slice(0, 10).map((event, index) => (
             <motion.div
               key={`${event.timestamp}-${index}`}
               initial={{ opacity: 0, x: -20 }}

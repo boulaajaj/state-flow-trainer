@@ -18,7 +18,8 @@ export const ActionLogger: React.FC = () => {
 
   React.useEffect(() => {
     if (!isPaused) {
-      setDisplayEvents(events);
+      // Show newest events first (reverse chronological order)
+      setDisplayEvents([...events].reverse());
     }
   }, [events, isPaused]);
 
@@ -64,7 +65,7 @@ export const ActionLogger: React.FC = () => {
       <ScrollArea className="h-64">
         <div className="space-y-2">
           <AnimatePresence>
-            {displayEvents.slice(-20).reverse().map((event, index) => (
+            {displayEvents.slice(0, 20).map((event, index) => (
               <motion.div
                 key={`${event.timestamp}-${index}`}
                 initial={{ opacity: 0, y: -10 }}
