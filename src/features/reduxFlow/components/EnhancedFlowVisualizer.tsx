@@ -210,9 +210,9 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
       )}
 
       {/* Expandable details - only on large screens */}
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="hidden xl:block w-full mt-2">
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="hidden xl:block w-full">
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-1 h-auto text-xs">
+          <Button variant="ghost" className="w-full justify-between p-1 h-auto text-xs mt-1">
             <span className="text-muted-foreground">
               {isExpanded ? 'Hide' : 'Show'}
             </span>
@@ -221,7 +221,7 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
         </CollapsibleTrigger>
         
         <CollapsibleContent className="mt-2">
-          <div className="absolute top-full left-0 right-0 bg-card border border-border rounded-lg shadow-lg p-3 z-50 space-y-2">
+          <div className="bg-card border border-border rounded-lg shadow-lg p-3 space-y-2">
             {/* Latest events for this step */}
             {stepEvents.length > 0 && (
               <div>
@@ -300,7 +300,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
 
         {/* Redux Flow Steps - Full width responsive layout, no scrollbar */}
         <div className="w-full">
-          <div className="flex items-stretch gap-2 lg:gap-4 h-20 lg:h-24">
+          <div className="flex items-start gap-2 lg:gap-4 min-h-20 lg:min-h-24">
             {flowSteps.map((step, index) => (
               <React.Fragment key={step.id}>
                 {/* Step Card - equal flex sizing */}
@@ -316,7 +316,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
                 
                 {/* Flow Line - between steps */}
                 {index < flowSteps.length - 1 && (
-                  <div className="flex-shrink-0 w-4 lg:w-8 flex items-center justify-center">
+                  <div className="flex-shrink-0 w-4 lg:w-8 flex items-center justify-center mt-10 lg:mt-12">
                     <motion.div
                       className="w-full h-0.5 lg:h-1 bg-gradient-to-r from-muted via-muted to-muted relative overflow-hidden rounded-full"
                       initial={{ scaleX: 0 }}
