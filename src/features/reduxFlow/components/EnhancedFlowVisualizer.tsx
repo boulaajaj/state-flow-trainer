@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChevronDown, Copy, Download, Zap, Eye, RefreshCw, HelpCircle, Activity } from 'lucide-react';
+import { ChevronDown, Copy, Download, Zap, Eye, RefreshCw, HelpCircle, Activity, Code } from 'lucide-react';
 import { selectCurrentEvent, selectIsAnimating, selectLatestEvents } from '../store/reduxFlow.selectors';
 import { useToast } from '@/hooks/use-toast';
+import { CodeViewerModal } from './CodeViewerModal';
 
 const flowSteps = [
   { 
@@ -70,9 +71,10 @@ interface StepCardProps {
   isActive: boolean;
   currentEvent: any;
   latestEvents: any[];
+  onShowCode: (stepId: string, stepLabel: string) => void;
 }
 
-const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent, latestEvents }) => {
+const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent, latestEvents, onShowCode }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { toast } = useToast();
 
@@ -265,10 +267,36 @@ const StepCard: React.FC<StepCardProps> = ({ step, index, isActive, currentEvent
               >
                 <Download className="w-3 h-3" />
               </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShowCode(step.id, step.label);
+                }}
+                className="text-xs flex-1 bg-background"
+              >
+                <Code className="w-3 h-3" />
+              </Button>
             </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
+
+      {/* Code viewer button - always visible at bottom */}
+      <div className="absolute bottom-1 right-1 z-10">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onShowCode(step.id, step.label);
+          }}
+          className="text-xs h-6 w-6 p-0 bg-background/90 backdrop-blur hover:bg-background"
+        >
+          <Code className="w-3 h-3" />
+        </Button>
+      </div>
     </motion.div>
   );
 };
@@ -278,6 +306,19 @@ export const EnhancedFlowVisualizer: React.FC = () => {
   const isAnimating = useSelector(selectIsAnimating);
   const latestEvents = useSelector(selectLatestEvents);
   const [showMiniMap, setShowMiniMap] = useState(false);
+  const [codeModal, setCodeModal] = useState<{ isOpen: boolean; stepId: string; stepLabel: string }>({
+    isOpen: false,
+    stepId: '',
+    stepLabel: ''
+  });
+
+  const handleShowCode = (stepId: string, stepLabel: string) => {
+    setCodeModal({ isOpen: true, stepId, stepLabel });
+  };
+
+  const handleCloseCodeModal = () => {
+    setCodeModal({ isOpen: false, stepId: '', stepLabel: '' });
+  };
 
   return (
     <div className="w-full bg-card border border-border rounded-lg overflow-hidden">
@@ -311,6 +352,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
                     isActive={currentEvent?.type === step.id}
                     currentEvent={currentEvent}
                     latestEvents={latestEvents}
+                    onShowCode={handleShowCode}
                   />
                 </div>
                 
@@ -369,6 +411,14 @@ export const EnhancedFlowVisualizer: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Code Viewer Modal */}
+      <CodeViewerModal
+        isOpen={codeModal.isOpen}
+        onClose={handleCloseCodeModal}
+        stepId={codeModal.stepId}
+        stepLabel={codeModal.stepLabel}
+      />
     </div>
   );
 };
