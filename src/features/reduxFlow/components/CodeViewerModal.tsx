@@ -26,9 +26,17 @@ const getModuleFromActionType = (actionType: string) => {
 
 // Dynamic code examples based on the current event
 const getDynamicCodeExample = (stepId: string, currentEvent: any) => {
-  const actionType = currentEvent?.action?.type || '';
-  const payload = currentEvent?.action?.payload;
+  // Try different possible action type locations
+  const actionType = currentEvent?.action?.type || currentEvent?.actionType || currentEvent?.type || '';
+  const payload = currentEvent?.action?.payload || currentEvent?.payload;
   const module = getModuleFromActionType(actionType);
+  
+  console.log('getDynamicCodeExample Debug:', {
+    actionType,
+    payload,
+    module,
+    currentEvent
+  });
   
   const moduleConfigs = {
     counter: {
@@ -514,6 +522,16 @@ export const CodeViewerModal: React.FC<CodeViewerModalProps> = ({
   currentEvent
 }) => {
   const { toast } = useToast();
+  
+  // Debug logging
+  console.log('CodeViewerModal Debug:', {
+    stepId,
+    currentEvent,
+    actionType: currentEvent?.action?.type,
+    actionTypeAlt: currentEvent?.actionType,
+    payload: currentEvent?.action?.payload || currentEvent?.payload
+  });
+  
   const codeExample = getDynamicCodeExample(stepId, currentEvent);
 
   const copyToClipboard = () => {
