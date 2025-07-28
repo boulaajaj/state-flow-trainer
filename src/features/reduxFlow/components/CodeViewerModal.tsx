@@ -126,7 +126,12 @@ interface WeatherState {
     }
   };
 
-  const config = moduleConfigs[module] || moduleConfigs.todo;
+  const config = moduleConfigs[module as keyof typeof moduleConfigs];
+  if (!config) {
+    console.error('No config found for module:', module, 'Available modules:', Object.keys(moduleConfigs));
+    return null;
+  }
+  
   const currentActionName = actionType.split('/')[1] || 'sampleAction';
 
   const codeExamples = {
