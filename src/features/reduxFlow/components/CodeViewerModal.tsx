@@ -4,6 +4,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Copy, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface CodeViewerModalProps {
   isOpen: boolean;
@@ -359,8 +361,8 @@ export const CodeViewerModal: React.FC<CodeViewerModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[70vw] h-[70vh] p-0 bg-background border border-border shadow-2xl">
-        <DialogHeader className="p-6 pb-0">
+      <DialogContent className="max-w-4xl w-[70vw] h-[70vh] flex flex-col p-0 bg-background border border-border shadow-2xl">
+        <DialogHeader className="p-6 pb-4 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-xl font-semibold text-foreground">
@@ -392,13 +394,25 @@ export const CodeViewerModal: React.FC<CodeViewerModalProps> = ({
           </div>
         </DialogHeader>
         
-        <div className="flex-1 p-6 pt-4">
-          <ScrollArea className="h-full">
-            <pre className="bg-muted/50 rounded-lg p-4 text-sm font-mono overflow-x-auto border border-border">
-              <code className="text-foreground whitespace-pre-wrap">
+        <div className="flex-1 min-h-0 p-6">
+          <ScrollArea className="h-full w-full">
+            <div className="pr-4">
+              <SyntaxHighlighter
+                language="typescript"
+                style={oneDark}
+                className="!bg-transparent !m-0"
+                customStyle={{
+                  background: 'transparent',
+                  padding: '1rem',
+                  margin: 0,
+                  fontSize: '0.875rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid hsl(var(--border))',
+                }}
+              >
                 {codeExample.code}
-              </code>
-            </pre>
+              </SyntaxHighlighter>
+            </div>
           </ScrollArea>
         </div>
       </DialogContent>
