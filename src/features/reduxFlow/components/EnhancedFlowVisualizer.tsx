@@ -343,7 +343,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
         <div className="w-full">
           <div className="flex items-start gap-2 lg:gap-4 min-h-20 lg:min-h-24">
             {flowSteps.map((step, index) => (
-              <React.Fragment key={step.id}>
+              <div key={step.id} className="contents">
                 {/* Step Card - equal flex sizing */}
                 <div className="flex-1 min-w-0">
                   <StepCard
@@ -384,7 +384,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
                     </motion.div>
                   </div>
                 )}
-              </React.Fragment>
+              </div>
             ))}
           </div>
         </div>
