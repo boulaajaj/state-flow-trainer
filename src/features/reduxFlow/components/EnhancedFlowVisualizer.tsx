@@ -418,6 +418,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
         onClose={handleCloseCodeModal}
         stepId={codeModal.stepId}
         stepLabel={codeModal.stepLabel}
+        currentEvent={currentEvent}
       />
     </div>
   );

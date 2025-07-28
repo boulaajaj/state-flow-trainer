@@ -12,77 +12,44 @@ interface CodeViewerModalProps {
   onClose: () => void;
   stepId: string;
   stepLabel: string;
+  currentEvent?: any; // The current Redux event to get dynamic code from
 }
 
-const codeExamples = {
-  action: {
-    title: "Action Dispatching Code",
-    description: "This is the code that dispatches actions to trigger state changes",
-    code: `// 1. Action Creators (from todo.slice.ts)
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+// Helper function to determine module from action type
+const getModuleFromActionType = (actionType: string) => {
+  if (actionType.startsWith('counter/')) return 'counter';
+  if (actionType.startsWith('todo/')) return 'todo';
+  if (actionType.startsWith('auth/')) return 'auth';
+  if (actionType.startsWith('weather/')) return 'weather';
+  return 'general';
+};
 
-export const todoSlice = createSlice({
-  name: 'todo',
-  initialState,
-  reducers: {
-    // Action creator - creates action objects
-    addTodo: (state, action: PayloadAction<string>) => {
-      const newTodo = {
-        id: nanoid(),
-        text: action.payload,
-        completed: false,
-        createdAt: Date.now(),
-      };
-      state.todos.push(newTodo);
-    },
-    
-    toggleTodo: (state, action: PayloadAction<string>) => {
-      const todo = state.todos.find(todo => todo.id === action.payload);
-      if (todo) {
-        todo.completed = !todo.completed;
-      }
-    },
-  },
-});
-
-// Export action creators
-export const { addTodo, toggleTodo } = todoSlice.actions;
-
-// 2. Dispatching Actions in Components
-import { useAppDispatch } from '@/hooks/redux.hooks';
-import { addTodo, toggleTodo } from '@/modules/Todo/store/todo.slice';
-
-const TodoComponent = () => {
-  const dispatch = useAppDispatch(); // Typed dispatch hook
+// Dynamic code examples based on the current event
+const getDynamicCodeExample = (stepId: string, currentEvent: any) => {
+  const actionType = currentEvent?.action?.type || '';
+  const payload = currentEvent?.action?.payload;
+  const module = getModuleFromActionType(actionType);
   
-  const handleAddTodo = (text: string) => {
-    // This dispatch call triggers the Redux flow!
-    dispatch(addTodo(text));
-    // ↑ Creates: { type: 'todo/addTodo', payload: 'Buy groceries' }
-  };
-  
-  const handleToggleTodo = (id: string) => {
-    dispatch(toggleTodo(id));
-    // ↑ Creates: { type: 'todo/toggleTodo', payload: 'todo-123' }
-  };
-  
-  return (
-    <div>
-      <button onClick={() => handleAddTodo('New task')}>
-        Add Todo
-      </button>
-    </div>
-  );
+  const moduleConfigs = {
+    counter: {
+      sliceName: 'counter',
+      modulePath: 'Counter',
+      sampleActions: ['increment', 'decrement', 'reset', 'setStep', 'incrementByAmount'],
+      interface: `interface CounterState {
+  value: number;
+  step: number;
+}`,
+      selector: 'selectCounterValue, selectCounterStep',
+      initialState: `const initialState: CounterState = {
+  value: 0,
+  step: 1,
 };`
-  },
-  
-  reducer: {
-    title: "Reducer Processing Code",
-    description: "Pure functions that calculate new state based on actions",
-    code: `// Reducer Functions (from todo.slice.ts)
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface Todo {
+    },
+    todo: {
+      sliceName: 'todo',
+      modulePath: 'Todo',
+      sampleActions: ['addTodo', 'toggleTodo', 'deleteTodo', 'editTodo', 'setFilter'],
+      interface: `interface Todo {
   id: string;
   text: string;
   completed: boolean;
@@ -92,68 +59,222 @@ interface Todo {
 interface TodoState {
   todos: Todo[];
   filter: 'all' | 'active' | 'completed';
-}
-
-const initialState: TodoState = {
+}`,
+      selector: 'selectTodos, selectFilteredTodos, selectTodoStats',
+      initialState: `const initialState: TodoState = {
   todos: [],
   filter: 'all',
-};
+};`
+    },
+    auth: {
+      sliceName: 'auth',
+      modulePath: 'Auth',
+      sampleActions: ['loginStart', 'loginSuccess', 'loginFailure', 'logout', 'updateProfile'],
+      interface: `interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user';
+}
 
-export const todoSlice = createSlice({
-  name: 'todo',
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}`,
+      selector: 'selectCurrentUser, selectIsAuthenticated, selectAuthError',
+      initialState: `const initialState: AuthState = {
+  user: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+};`
+    },
+    weather: {
+      sliceName: 'weather',
+      modulePath: 'Weather',
+      sampleActions: ['fetchWeather', 'clearWeatherData', 'simulateWeatherError'],
+      interface: `interface WeatherData {
+  temperature: number;
+  windSpeed: number;
+  weatherCode: number;
+  time: string;
+}
+
+interface WeatherState {
+  data: WeatherData | null;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+  lastFetchedCity: string | null;
+}`,
+      selector: 'selectWeatherData, selectWeatherStatus, selectWeatherError',
+      initialState: `const initialState: WeatherState = {
+  data: null,
+  status: 'idle',
+  error: null,
+  lastFetchedCity: null,
+};`
+    }
+  };
+
+  const config = moduleConfigs[module] || moduleConfigs.todo;
+  const currentActionName = actionType.split('/')[1] || 'sampleAction';
+
+  const codeExamples = {
+    action: {
+      title: `Action Dispatching Code - ${config.modulePath} Module`,
+      description: `Code for dispatching the "${actionType}" action that was just triggered`,
+      code: `// 1. Action Creators (from ${config.modulePath.toLowerCase()}.slice.ts)
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+${config.interface}
+
+${config.initialState}
+
+export const ${config.sliceName}Slice = createSlice({
+  name: '${config.sliceName}',
   initialState,
   reducers: {
-    // ✅ PURE FUNCTION - No side effects, returns new state
-    addTodo: (state, action: PayloadAction<string>) => {
-      // Redux Toolkit uses Immer under the hood
-      // This looks like mutation but creates a new state
-      const newTodo: Todo = {
-        id: nanoid(), // Generate unique ID
+    // ✨ THE ACTION THAT JUST FIRED: ${actionType}
+    ${currentActionName}: (state, action) => {
+      // This is the reducer that just processed your action!
+      ${module === 'counter' && currentActionName === 'increment' ? 
+        `state.value += state.step; // Increment by step amount` :
+      module === 'counter' && currentActionName === 'decrement' ? 
+        `state.value -= state.step; // Decrement by step amount` :
+      module === 'todo' && currentActionName === 'addTodo' ? 
+        `const newTodo = {
+        id: nanoid(),
         text: action.payload,
         completed: false,
         createdAt: Date.now(),
       };
-      
-      // Immer handles immutability for us
-      state.todos.push(newTodo);
-      
-      // Previous state: { todos: [] }
-      // Action: { type: 'todo/addTodo', payload: 'Buy milk' }
-      // New state: { todos: [{ id: '123', text: 'Buy milk', ... }] }
-    },
-    
-    toggleTodo: (state, action: PayloadAction<string>) => {
-      // Find the todo by ID
-      const todo = state.todos.find(todo => todo.id === action.payload);
-      
+      state.todos.push(newTodo);` :
+      module === 'todo' && currentActionName === 'toggleTodo' ? 
+        `const todo = state.todos.find(todo => todo.id === action.payload);
       if (todo) {
-        // Toggle the completed status
         todo.completed = !todo.completed;
-      }
-      
-      // Previous: { todos: [{ id: '123', completed: false }] }
-      // Action: { type: 'todo/toggleTodo', payload: '123' }
-      // New: { todos: [{ id: '123', completed: true }] }
+      }` :
+      module === 'auth' && currentActionName === 'loginSuccess' ? 
+        `state.user = action.payload;
+      state.isAuthenticated = true;
+      state.isLoading = false;` :
+      `// Process action payload: ${JSON.stringify(payload, null, 6)}`}
     },
     
-    deleteTodo: (state, action: PayloadAction<string>) => {
-      // Filter out the todo with matching ID
-      state.todos = state.todos.filter(todo => todo.id !== action.payload);
-    },
+    // Other actions in this slice
+    ${config.sampleActions.filter(a => a !== currentActionName).slice(0, 2).map(action => `${action}: (state, action) => {
+      // ${action} implementation
+    }`).join(',\n    ')}
   },
 });
 
-// How reducers work internally:
-// 1. Receive current state + action
-// 2. Calculate new state based on action type
-// 3. Return new state object (immutably)
-// 4. Never mutate original state directly`
-  },
+// Export action creators
+export const { ${config.sampleActions.join(', ')} } = ${config.sliceName}Slice.actions;
+
+// 2. Dispatching Actions in Components
+import { useAppDispatch } from '@/hooks/redux.hooks';
+import { ${currentActionName} } from '@/modules/${config.modulePath}/store/${config.sliceName}.slice';
+
+const ${config.modulePath}Component = () => {
+  const dispatch = useAppDispatch(); // Typed dispatch hook
   
-  store: {
-    title: "Store Configuration Code",
-    description: "The central hub that holds your application state",
-    code: `// Store Setup (from store/index.ts)
+  const handle${currentActionName.charAt(0).toUpperCase() + currentActionName.slice(1)} = ${payload !== undefined ? `(${typeof payload === 'string' ? 'text: string' : 'payload: any'}) => {` : '() => {'}
+    // 🚀 THIS DISPATCH CALL JUST HAPPENED!
+    dispatch(${currentActionName}(${payload !== undefined ? (typeof payload === 'string' ? 'text' : 'payload') : ''}));
+    // ↑ Created: { type: '${actionType}', payload: ${JSON.stringify(payload)} }
+  };
+  
+  return (
+    <button onClick={handle${currentActionName.charAt(0).toUpperCase() + currentActionName.slice(1)}}>
+      ${currentActionName.charAt(0).toUpperCase() + currentActionName.slice(1)}
+    </button>
+  );
+};
+
+// 📝 Action that just fired:
+// Type: "${actionType}"
+// Payload: ${JSON.stringify(payload, null, 2) || 'undefined'}
+// Timestamp: ${currentEvent?.timestamp ? new Date(currentEvent.timestamp).toLocaleTimeString() : 'N/A'}`
+    },
+    
+    reducer: {
+      title: `Reducer Processing - ${config.modulePath} Module`,
+      description: `The reducer that just processed the "${actionType}" action`,
+      code: `// Reducer Function (from ${config.modulePath.toLowerCase()}.slice.ts)
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+${config.interface}
+
+${config.initialState}
+
+export const ${config.sliceName}Slice = createSlice({
+  name: '${config.sliceName}',
+  initialState,
+  reducers: {
+    // ⚡ THIS REDUCER JUST RAN for action: ${actionType}
+    ${currentActionName}: (state, action) => {
+      // ✅ PURE FUNCTION - No side effects, immutable state updates
+      ${module === 'counter' && currentActionName === 'increment' ? 
+        `// Previous state: { value: ${(currentEvent?.previousState?.counter?.value || 0)}, step: ${(currentEvent?.previousState?.counter?.step || 1)} }
+      state.value += state.step;
+      // New state: { value: ${(currentEvent?.newState?.counter?.value || 'X')}, step: ${(currentEvent?.newState?.counter?.step || 1)} }` :
+      module === 'counter' && currentActionName === 'decrement' ? 
+        `// Previous state: { value: ${(currentEvent?.previousState?.counter?.value || 0)}, step: ${(currentEvent?.previousState?.counter?.step || 1)} }
+      state.value -= state.step;
+      // New state: { value: ${(currentEvent?.newState?.counter?.value || 'X')}, step: ${(currentEvent?.newState?.counter?.step || 1)} }` :
+      module === 'todo' && currentActionName === 'addTodo' ? 
+        `// Redux Toolkit uses Immer - looks like mutation but creates new state
+      const newTodo = {
+        id: nanoid(),
+        text: action.payload, // "${payload}"
+        completed: false,
+        createdAt: Date.now(),
+      };
+      state.todos.push(newTodo);
+      
+      // Previous state: { todos: [${(currentEvent?.previousState?.todo?.todos?.length || 0)} items] }
+      // New state: { todos: [${(currentEvent?.newState?.todo?.todos?.length || 'X')} items] }` :
+      module === 'todo' && currentActionName === 'toggleTodo' ? 
+        `const todo = state.todos.find(todo => todo.id === action.payload);
+      if (todo) {
+        todo.completed = !todo.completed;
+      }
+      // Toggled todo with ID: "${payload}"` :
+      module === 'auth' && currentActionName === 'loginSuccess' ? 
+        `state.user = action.payload;
+      state.isAuthenticated = true;
+      state.isLoading = false;
+      state.error = null;
+      
+      // User logged in: ${payload?.name || 'Unknown user'}` :
+      `// Processed action payload: ${JSON.stringify(payload, null, 8)}
+      // State update logic here...`}
+    },
+    
+    // Other reducers in this slice
+    ${config.sampleActions.filter(a => a !== currentActionName).slice(0, 2).map(action => `${action}: (state, action) => {
+      // ${action} reducer logic
+    }`).join(',\n    ')}
+  },
+});
+
+// 🔄 How this reducer just worked:
+// 1. Received action: { type: "${actionType}", payload: ${JSON.stringify(payload)} }
+// 2. Applied state changes immutably using Immer
+// 3. Returned new state to the store
+// 4. Store notified all subscribers of the change
+
+// 📊 State before/after:
+// Before: ${JSON.stringify(currentEvent?.previousState?.[module] || {}, null, 2)}
+// After:  ${JSON.stringify(currentEvent?.newState?.[module] || {}, null, 2)}`
+    },
+    
+    store: {
+      title: "Store Configuration Code",
+      description: "The Redux store that just processed your action",
+      code: `// Store Setup (from store/index.ts)
 import { configureStore } from '@reduxjs/toolkit';
 import { rootReducer } from './rootReducer';
 import { reduxFlowMiddleware } from './middleware';
@@ -164,10 +285,9 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Ignore these action types in serialization check
         ignoredActions: ['reduxFlow/actionDispatched', 'reduxFlow/stateUpdated'],
       },
-    }).concat(reduxFlowMiddleware), // Add custom middleware
+    }).concat(reduxFlowMiddleware), // Tracks the flow you're seeing!
 });
 
 // TypeScript types for the store
@@ -182,57 +302,56 @@ import { authSlice } from '@/modules/Auth/store/auth.slice';
 import { weatherSlice } from '@/modules/Weather/store/weather.slice';
 import { reduxFlowSlice } from '@/features/reduxFlow/store/reduxFlow.slice';
 
-// 🔗 Combine all slice reducers into one root reducer
+// 🔗 Combined reducer that just processed your action
 export const rootReducer = combineReducers({
-  counter: counterSlice.reducer,
-  todo: todoSlice.reducer,
-  auth: authSlice.reducer,
-  weather: weatherSlice.reducer,
-  reduxFlow: reduxFlowSlice.reducer,
+  counter: counterSlice.reducer,    // ← ${module === 'counter' ? '✅ JUST UPDATED!' : 'Not involved'}
+  todo: todoSlice.reducer,          // ← ${module === 'todo' ? '✅ JUST UPDATED!' : 'Not involved'}
+  auth: authSlice.reducer,          // ← ${module === 'auth' ? '✅ JUST UPDATED!' : 'Not involved'}
+  weather: weatherSlice.reducer,    // ← ${module === 'weather' ? '✅ JUST UPDATED!' : 'Not involved'}
+  reduxFlow: reduxFlowSlice.reducer,// ← Always tracking
 });
 
-// How the store works:
-// 1. Holds the complete state tree of your app
-// 2. Allows state access via getState()
-// 3. Allows state updates via dispatch(action)
-// 4. Registers listeners via subscribe(listener)
-// 5. Handles unregistering via the function returned by subscribe()
+// 🚀 What just happened in the store:
+// 1. Action dispatched: ${actionType}
+// 2. Middleware intercepted and logged it
+// 3. Root reducer delegated to ${module}Slice.reducer
+// 4. ${module.charAt(0).toUpperCase() + module.slice(1)} state updated
+// 5. All subscribers notified
+// 6. Components re-rendered if their selected data changed
 
-// State structure looks like:
-// {
-//   counter: { value: 0 },
-//   todo: { todos: [], filter: 'all' },
-//   auth: { user: null, isLoading: false },
-//   weather: { data: null, loading: false },
-//   reduxFlow: { events: [], currentEvent: null }
-// }`
-  },
-  
-  selector: {
-    title: "Selector Functions Code",
-    description: "Functions that extract specific data from the store",
-    code: `// Basic Selectors (from todo.selectors.ts)
+// 📊 Current complete state structure:
+${JSON.stringify(currentEvent?.newState || {}, null, 2)}`
+    },
+    
+    selector: {
+      title: `Selector Functions - ${config.modulePath} Module`,
+      description: `Selectors that extract data from the ${module} state`,
+      code: `// Selectors (from ${config.modulePath.toLowerCase()}.selectors.ts)
 import { RootState } from '@/store';
 import { createSelector } from '@reduxjs/toolkit';
 
-// 🎯 Simple selectors - extract raw data
-export const selectTodos = (state: RootState) => state.todo.todos;
+// 🎯 Basic selectors - extract raw data from ${module} state
+${module === 'counter' ? `export const selectCounterValue = (state: RootState) => state.counter.value;
+export const selectCounterStep = (state: RootState) => state.counter.step;
+
+// 🚀 Memoized selectors - computed values with caching
+export const selectCounterDisplay = createSelector(
+  [selectCounterValue],
+  (value) => \`Current count: \${value}\`
+);` :
+module === 'todo' ? `export const selectTodos = (state: RootState) => state.todo.todos;
 export const selectTodoFilter = (state: RootState) => state.todo.filter;
 
 // 🚀 Memoized selectors - computed values with caching
 export const selectFilteredTodos = createSelector(
-  [selectTodos, selectTodoFilter], // Input selectors
-  (todos, filter) => { // Combiner function
+  [selectTodos, selectTodoFilter],
+  (todos, filter) => {
     switch (filter) {
-      case 'active':
-        return todos.filter(todo => !todo.completed);
-      case 'completed':
-        return todos.filter(todo => todo.completed);
-      default:
-        return todos;
+      case 'active': return todos.filter(todo => !todo.completed);
+      case 'completed': return todos.filter(todo => todo.completed);
+      default: return todos;
     }
   }
-  // ✅ This result is memoized! Only recalculates when inputs change
 );
 
 export const selectTodoStats = createSelector(
@@ -242,119 +361,166 @@ export const selectTodoStats = createSelector(
     completed: todos.filter(todo => todo.completed).length,
     active: todos.filter(todo => !todo.completed).length,
   })
-);
+);` :
+module === 'auth' ? `export const selectCurrentUser = (state: RootState) => state.auth.user;
+export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;
+export const selectAuthError = (state: RootState) => state.auth.error;
 
-// Advanced Selectors (from reduxFlow.selectors.ts)
-export const selectReduxFlowEvents = (state: RootState) => state.reduxFlow.events;
-export const selectCurrentEvent = (state: RootState) => state.reduxFlow.currentEvent;
+// 🚀 Memoized selectors
+export const selectUserDisplayName = createSelector(
+  [selectCurrentUser],
+  (user) => user ? \`\${user.name} (\${user.role})\` : 'Not logged in'
+);` :
+`export const selectWeatherData = (state: RootState) => state.weather.data;
+export const selectWeatherStatus = (state: RootState) => state.weather.status;
+export const selectWeatherError = (state: RootState) => state.weather.error;
 
-// Memoized selector with transformation
-export const selectLatestEvents = createSelector(
-  [selectReduxFlowEvents],
-  (events) => events.slice(-10) // Get last 10 events
-);
+// 🚀 Memoized selectors
+export const selectTemperatureDisplay = createSelector(
+  [selectWeatherData],
+  (data) => data ? \`\${data.temperature}°C\` : 'No data'
+);`}
 
-export const selectStateSlices = createSelector(
-  [(state: RootState) => state],
-  (state) => {
-    return Object.entries(state).map(([key, value]) => ({
-      name: key,
-      data: value,
-      size: JSON.stringify(value).length
-    }));
-  }
-);
+// ⚡ SELECTOR USAGE IN COMPONENTS
+import { useAppSelector } from '@/hooks/redux.hooks';
+import { ${config.selector} } from '@/modules/${config.modulePath}/store/${config.sliceName}.selectors';
 
-// How selectors work:
-// 1. Take the root state as input
-// 2. Extract and return specific pieces of data
-// 3. Can compute derived data from state
-// 4. Memoized selectors cache results for performance
-// 5. Only recalculate when input values change`
-  },
+const ${config.modulePath}Component = () => {
+  // 🔌 These selectors will get the updated state after the action
+  const data = useAppSelector(select${config.modulePath}${module === 'counter' ? 'Value' : module === 'todo' ? 's' : module === 'auth' ? 'User' : 'Data'});
   
-  render: {
-    title: "Component Re-rendering Code",
-    description: "How React components subscribe to Redux state and re-render",
-    code: `// Component Subscription (from TodoModule.tsx)
+  // ⚡ This component re-renders when selected data changes
+  // After the "${actionType}" action, these selectors returned new values
+  
+  return <div>{/* Component renders with new data */}</div>;
+};
+
+// 🔍 What just happened with selectors:
+// 1. Action "${actionType}" updated ${module} state
+// 2. Components subscribed to ${module} selectors got notified
+// 3. Selectors re-ran and returned new values: 
+//    ${JSON.stringify(currentEvent?.newState?.[module] || {}, null, 4)}
+// 4. Components re-rendered with fresh data
+
+// 💡 Selector performance:
+// ✅ Memoized selectors only recalculate when input data changes
+// ✅ Shallow equality prevents unnecessary re-renders
+// ⚡ Your "${actionType}" action triggered exactly the right updates!`
+    },
+    
+    render: {
+      title: `Component Re-rendering - ${config.modulePath} Module`,
+      description: `How components respond to the "${actionType}" action`,
+      code: `// Component Subscription (from ${config.modulePath}Module.tsx)
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux.hooks';
-import { selectFilteredTodos, selectTodoStats } from '../store/todo.selectors';
-import { addTodo, toggleTodo, deleteTodo } from '../store/todo.slice';
+import { ${config.selector} } from '../store/${config.sliceName}.selectors';
+import { ${config.sampleActions.slice(0, 3).join(', ')} } from '../store/${config.sliceName}.slice';
 
-const TodoModule: React.FC = () => {
-  // 🔌 Subscribe to Redux state
+const ${config.modulePath}Module: React.FC = () => {
+  // 🔌 Subscribe to Redux state - these selectors just re-ran!
+  ${module === 'counter' ? `const counterValue = useAppSelector(selectCounterValue);
+  const counterStep = useAppSelector(selectCounterStep);` :
+  module === 'todo' ? `const todos = useAppSelector(selectTodos);
   const filteredTodos = useAppSelector(selectFilteredTodos);
-  const todoStats = useAppSelector(selectTodoStats);
+  const todoStats = useAppSelector(selectTodoStats);` :
+  module === 'auth' ? `const currentUser = useAppSelector(selectCurrentUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const authError = useAppSelector(selectAuthError);` :
+  `const weatherData = useAppSelector(selectWeatherData);
+  const weatherStatus = useAppSelector(selectWeatherStatus);`}
+  
   const dispatch = useAppDispatch();
   
-  // ⚡ This component will re-render when:
-  // - filteredTodos changes (todos array or filter changes)
-  // - todoStats changes (todo count changes)
+  // ⚡ THIS COMPONENT JUST RE-RENDERED because:
+  // - Action "${actionType}" was dispatched
+  // - ${config.modulePath} state changed
+  // - Subscribed selectors returned new values
+  // - React-Redux triggered a re-render
   
-  const handleAddTodo = (text: string) => {
-    dispatch(addTodo(text)); // Triggers state change
-    // → Store updates → Selectors run → Component re-renders
+  ${module === 'counter' ? `// Current values after the action:
+  // Value: ${currentEvent?.newState?.counter?.value || 'X'} (was ${currentEvent?.previousState?.counter?.value || 0})
+  // Step: ${currentEvent?.newState?.counter?.step || 1}` :
+  module === 'todo' ? `// Current state after the action:
+  // Total todos: ${currentEvent?.newState?.todo?.todos?.length || 'X'}
+  // Filter: ${currentEvent?.newState?.todo?.filter || 'all'}` :
+  module === 'auth' ? `// Current auth state:
+  // User: ${currentEvent?.newState?.auth?.user?.name || 'Not logged in'}
+  // Authenticated: ${currentEvent?.newState?.auth?.isAuthenticated || false}` :
+  `// Current weather state:
+  // Status: ${currentEvent?.newState?.weather?.status || 'idle'}
+  // Data: ${currentEvent?.newState?.weather?.data ? 'Available' : 'None'}`}
+
+  const handle${currentActionName.charAt(0).toUpperCase() + currentActionName.slice(1)} = () => {
+    dispatch(${currentActionName}(${payload !== undefined ? JSON.stringify(payload) : ''}));
   };
 
   return (
     <div>
-      {/* This will show updated count immediately after state change */}
-      <p>Total: {todoStats.total}, Active: {todoStats.active}</p>
-      
-      {/* This list will re-render with new todos */}
+      {/* 🎨 This UI reflects the state changes from "${actionType}" */}
+      ${module === 'counter' ? `<div>Count: {counterValue}</div>
+      <div>Step: {counterStep}</div>
+      <button onClick={() => dispatch(increment())}>+</button>` :
+      module === 'todo' ? `<div>Total: {todoStats.total}, Active: {todoStats.active}</div>
       {filteredTodos.map(todo => (
         <div key={todo.id}>
           <span>{todo.text}</span>
-          <button onClick={() => dispatch(toggleTodo(todo.id))}>
-            Toggle
-          </button>
+          <button onClick={() => dispatch(toggleTodo(todo.id))}>Toggle</button>
         </div>
-      ))}
-      
-      <button onClick={() => handleAddTodo('New task')}>
-        Add Todo
-      </button>
+      ))}` :
+      module === 'auth' ? `{isAuthenticated ? (
+        <div>Welcome, {currentUser?.name}!</div>
+      ) : (
+        <div>Please log in</div>
+      )}` :
+      `{weatherData ? (
+        <div>Temperature: {weatherData.temperature}°C</div>
+      ) : (
+        <div>No weather data</div>
+      )}`}
     </div>
   );
 };
 
-// Typed Redux Hooks (from hooks/redux.hooks.ts)
-import { useDispatch, useSelector } from 'react-redux';
-import type { TypedUseSelectorHook } from 'react-redux';
-import type { RootState, AppDispatch } from '@/store';
+// 🔄 React-Redux Re-render Cycle (what just happened):
+// 1. Action "${actionType}" dispatched at ${currentEvent?.timestamp ? new Date(currentEvent.timestamp).toLocaleTimeString() : 'N/A'}
+// 2. Store state updated: ${module} slice changed
+// 3. React-Redux checked all subscriptions
+// 4. Components using ${module} selectors got notified
+// 5. Those components re-rendered with new data
+// 6. Virtual DOM diffed and updated only changed elements
 
-// 🎣 Typed hooks for better TypeScript support
-export const useAppDispatch = () => useDispatch<AppDispatch>();
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+// 📊 Performance impact:
+// ✅ Only components subscribed to changed data re-rendered
+// ✅ Memoized selectors prevented unnecessary calculations
+// ✅ React's reconciliation minimized DOM updates
+// 🎯 Your action had precisely the right impact!
 
-// How React-Redux works:
-// 1. Components subscribe to store via useSelector
-// 2. When state changes, React-Redux checks subscriptions
-// 3. If selected data changed, component re-renders
-// 4. React's virtual DOM efficiently updates only what changed
-// 5. Shallow equality checks prevent unnecessary re-renders
+// 💡 To see this in action, check your React DevTools:
+// - Components tab shows which components re-rendered
+// - Profiler shows timing information
+// - Redux DevTools shows the exact state changes`
+    }
+  };
 
-// Performance Tips:
-// ✅ Use memoized selectors for computed values
-// ✅ Select only the data you need
-// ✅ Use React.memo for expensive components
-// ❌ Don't select the entire state object`
-  }
+  return codeExamples[stepId as keyof typeof codeExamples] || null;
 };
 
 export const CodeViewerModal: React.FC<CodeViewerModalProps> = ({ 
   isOpen, 
   onClose, 
   stepId, 
-  stepLabel 
+  stepLabel,
+  currentEvent
 }) => {
   const { toast } = useToast();
-  const codeExample = codeExamples[stepId as keyof typeof codeExamples];
+  const codeExample = getDynamicCodeExample(stepId, currentEvent);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(codeExample.code);
-    toast({ title: "Code copied to clipboard!" });
+    if (codeExample) {
+      navigator.clipboard.writeText(codeExample.code);
+      toast({ title: "Code copied to clipboard!" });
+    }
   };
 
   if (!codeExample) return null;
