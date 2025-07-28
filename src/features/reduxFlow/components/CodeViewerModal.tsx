@@ -12,30 +12,43 @@ interface CodeViewerModalProps {
   onClose: () => void;
   stepId: string;
   stepLabel: string;
-  currentEvent?: any; // The current Redux event to get dynamic code from
+  currentEvent?: any;
+  latestEvents?: any[]; // Add this to get the latest events
 }
 
 // Helper function to determine module from action type
 const getModuleFromActionType = (actionType: string) => {
+  if (!actionType) return 'counter'; // Default fallback to counter
   if (actionType.startsWith('counter/')) return 'counter';
   if (actionType.startsWith('todo/')) return 'todo';
   if (actionType.startsWith('auth/')) return 'auth';
   if (actionType.startsWith('weather/')) return 'weather';
-  return 'general';
+  return 'counter'; // Default fallback to counter instead of 'general'
 };
 
 // Dynamic code examples based on the current event
-const getDynamicCodeExample = (stepId: string, currentEvent: any) => {
+const getDynamicCodeExample = (stepId: string, currentEvent: any, latestEvents?: any[]) => {
+  // If no current event, try to get the most recent action from latest events
+  let eventToUse = currentEvent;
+  if (!eventToUse && latestEvents && latestEvents.length > 0) {
+    // Find the most recent action event
+    eventToUse = latestEvents
+      .filter(event => event.type === 'action')
+      .sort((a, b) => b.timestamp - a.timestamp)[0];
+  }
+  
   // Try different possible action type locations
-  const actionType = currentEvent?.action?.type || currentEvent?.actionType || currentEvent?.type || '';
-  const payload = currentEvent?.action?.payload || currentEvent?.payload;
+  const actionType = eventToUse?.actionType || eventToUse?.action?.type || eventToUse?.type || '';
+  const payload = eventToUse?.payload || eventToUse?.action?.payload;
   const module = getModuleFromActionType(actionType);
   
   console.log('getDynamicCodeExample Debug:', {
     actionType,
     payload,
     module,
-    currentEvent
+    currentEvent,
+    eventToUse,
+    latestEvents: latestEvents?.slice(-3) // Log last 3 events for debugging
   });
   
   const moduleConfigs = {
@@ -524,7 +537,8 @@ export const CodeViewerModal: React.FC<CodeViewerModalProps> = ({
   onClose, 
   stepId, 
   stepLabel,
-  currentEvent
+  currentEvent,
+  latestEvents
 }) => {
   const { toast } = useToast();
   
@@ -532,12 +546,13 @@ export const CodeViewerModal: React.FC<CodeViewerModalProps> = ({
   console.log('CodeViewerModal Debug:', {
     stepId,
     currentEvent,
+    latestEvents: latestEvents?.slice(-3),
     actionType: currentEvent?.action?.type,
     actionTypeAlt: currentEvent?.actionType,
     payload: currentEvent?.action?.payload || currentEvent?.payload
   });
   
-  const codeExample = getDynamicCodeExample(stepId, currentEvent);
+  const codeExample = getDynamicCodeExample(stepId, currentEvent, latestEvents);
 
   const copyToClipboard = () => {
     if (codeExample) {

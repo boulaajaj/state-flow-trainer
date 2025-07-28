@@ -419,6 +419,7 @@ export const EnhancedFlowVisualizer: React.FC = () => {
         stepId={codeModal.stepId}
         stepLabel={codeModal.stepLabel}
         currentEvent={currentEvent}
+        latestEvents={latestEvents}
       />
     </div>
   );
